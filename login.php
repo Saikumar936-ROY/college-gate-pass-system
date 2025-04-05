@@ -1,62 +1,54 @@
-<?php
-session_start(); // Start session at the beginning
-?>
-
+<?php session_start(); if (isset($_SESSION["user_id"])) header("Location: student_dashboard.php"); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gate Pass System - Login</title>
-    <link rel="stylesheet" href="frontend\style.css"> <!-- Relative path -->
+    <title>Login</title>
+    <link rel="stylesheet" href="./frontend/style.css">
 </head>
 <body>
+    <div class="header">
+        <h1>College Gate Pass System</h1>
+        <?php if (isset($_SESSION["error"])) { echo "<p style='color: #E74C3C;'>".htmlspecialchars($_SESSION["error"])."</p>"; unset($_SESSION["error"]); } ?>
+    </div>
     <div class="container">
-        <h1>Gate Pass System</h1>
-        <?php if (isset($_SESSION["error"])) { ?>
-            <p style="color: red;"><?php echo $_SESSION["error"]; unset($_SESSION["error"]); ?></p>
-        <?php } ?>
-
+        <h1>Login</h1>
         <div class="login-wrapper">
-            <!-- Student Login -->
             <div class="login-card">
-                <img src="./icons/student-icon.png" alt="Student Icon" class="login-icon">
+                <i class="fas fa-user-graduate login-icon"></i>
                 <h2>Student Login</h2>
                 <form action="authenticate.php" method="POST">
-                    <label for="student-email">Email:</label>
-                    <input type="email" id="student-email" name="email" placeholder="Enter Email" required>
-                    <label for="student-password">Password:</label>
-                    <input type="password" id="student-password" name="password" placeholder="Enter Password" required>
                     <input type="hidden" name="role" value="student">
-                    <button type="submit" class="login-btn">Login</button>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter Email">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter Password">
+                    <button type="submit" class="btn">Login</button>
                 </form>
             </div>
-
-            <!-- HOD Login -->
             <div class="login-card">
-                <img src="./icons/hod-icon.png" alt="HOD Icon" class="login-icon">
+                <i class="fas fa-chalkboard-teacher login-icon"></i>
                 <h2>HOD Login</h2>
                 <form action="authenticate.php" method="POST">
-                    <label for="hod-email">Email:</label>
-                    <input type="email" id="hod-email" name="email" placeholder="Enter Email" required>
-                    <label for="hod-password">Password:</label>
-                    <input type="password" id="hod-password" name="password" placeholder="Enter Password" required>
                     <input type="hidden" name="role" value="hod">
-                    <button type="submit" class="login-btn">Login</button>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter Email">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter Password">
+                    <button type="submit" class="btn">Login</button>
                 </form>
             </div>
-
-            <!-- Gatekeeper Login -->
             <div class="login-card">
-                <img src="./icons/gatekeeper-icon.png" alt="Gatekeeper Icon" class="login-icon">
+                <i class="fas fa-shield-alt login-icon"></i>
                 <h2>Gatekeeper Login</h2>
                 <form action="authenticate.php" method="POST">
-                    <label for="gatekeeper-email">Email:</label>
-                    <input type="email" id="gatekeeper-email" name="email" placeholder="Enter Email" required>
-                    <label for="gatekeeper-password">Password:</label>
-                    <input type="password" id="gatekeeper-password" name="password" placeholder="Enter Password" required>
                     <input type="hidden" name="role" value="gatekeeper">
-                    <button type="submit" class="login-btn">Login</button>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter Email">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter Password">
+                    <button type="submit" class="btn">Login</button>
                 </form>
             </div>
         </div>
