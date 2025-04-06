@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Apr 05, 2025 at 08:48 PM
+-- Generation Time: Apr 06, 2025 at 12:29 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -83,11 +83,11 @@ CREATE TABLE `passes` (
 --
 
 INSERT INTO `passes` (`id`, `student_id`, `request_date`, `exit_time`, `attendance_percentage`, `parent_phone`, `status`, `notification_status`) VALUES
-(1, 1, '2025-04-05 20:03:06', '2025-04-06 14:00:00', NULL, NULL, 'pending', 'pending'),
+(1, 1, '2025-04-05 20:03:06', '2025-04-06 14:00:00', NULL, NULL, 'approved', 'sent'),
 (2, 1, '2025-04-05 20:15:10', '2025-04-07 14:00:00', NULL, NULL, 'pending', 'pending'),
 (3, 1, '2025-04-05 22:30:14', '2025-04-09 16:04:00', 52.00, '1234567890', 'pending', 'pending'),
 (4, 1, '2025-04-06 00:05:32', '2025-04-09 17:00:00', 82.00, '95945184534', 'pending', 'pending'),
-(5, 1, '2025-04-06 00:12:50', '2025-04-09 17:00:00', 82.00, '95945184534', 'pending', 'sent');
+(5, 1, '2025-04-06 00:12:50', '2025-04-09 17:00:00', 82.00, '95945184534', 'rejected', 'sent');
 
 -- --------------------------------------------------------
 

@@ -6,7 +6,7 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] != "hod") {
 }
 
 // Database connection
-$conn = new mysqli("127.0.0.1:3307", "root", "Saikumar@123", "gate_pass_system");
+$conn = new mysqli("127.0.0.1:3307", "root", "vennela123", "gate_pass_system");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -35,8 +35,8 @@ if (isset($_POST["pass_id"]) && isset($_POST["status"])) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'your.email@gmail.com'; // Replace with your Gmail
-        $mail->Password = 'your_app_password';     // Replace with your App Password
+        $mail->Username = 'saikumarlingaraju@gmail.com'; // Replace with your Gmail
+        $mail->Password = 'qzzi exqp ryru xgmx';     // Replace with your App Password
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
