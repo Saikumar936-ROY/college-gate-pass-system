@@ -4,7 +4,7 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] != "student") {
     header("Location: login.php");
     exit();
 }
-$conn = new mysqli("127.0.0.1:3307", "root", "vennela123", "gate_pass_system");
+$conn = new mysqli("127.0.0.1:3307", "root", "Saikumar@123", "gate_pass_system");
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 $student_id = $_SESSION["user_id"];
 $stmt = $conn->prepare("SELECT name, branch FROM students WHERE id = ?");
