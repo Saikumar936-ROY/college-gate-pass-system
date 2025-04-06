@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = new mysqli("127.0.0.1:3307", "root", "vennela123", "gate_pass_system");
+$conn = new mysqli("127.0.0.1:3307", "root", "Vishnu@369", "gate_pass_system");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
