@@ -12,20 +12,20 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Placeholder: This will be called by the HOD approval system
 if (isset($_POST["pass_id"]) && isset($_POST["status"])) {
     $pass_id = $_POST["pass_id"];
-    $status = $_POST["status"]; // Expected: 'approved' or 'rejected'
+    $status = $_POST["status"]; // 'approved' or 'rejected'
 
-    // Fetch student email
-    $stmt_email = $conn->prepare("SELECT s.email, p.student_id FROM students s JOIN passes p ON s.id = p.student_id WHERE p.id = ?");
+    // Fetch student email and pass details
+    $stmt_email = $conn->prepare("SELECT s.email, p.student_id, p.exit_time FROM students s JOIN passes p ON s.id = p.student_id WHERE p.id = ?");
     $stmt_email->bind_param("i", $pass_id);
     $stmt_email->execute();
     $result_email = $stmt_email->get_result();
-    $student = $result_email->fetch_assoc();
-    $student_email = $student['email'];
+    $pass = $result_email->fetch_assoc();
+    $student_email = $pass['email'];
+    $exit_time = $pass['exit_time'];
 
-    // Send notification (using PHPMailer)
+    // Send notification
     require_once 'PHPMailer/PHPMailer.php';
     require_once 'PHPMailer/SMTP.php';
     require_once 'PHPMailer/Exception.php';
@@ -47,6 +47,7 @@ if (isset($_POST["pass_id"]) && isset($_POST["status"])) {
         $mail->Body = "<h2>Gate Pass Status</h2>
                        <p>Dear Student,</p>
                        <p>Your gate pass request has been {$status}.</p>
+                       <p><strong>Exit Time:</strong> " . htmlspecialchars($exit_time) . "</p>
                        <p>Please contact the gatekeeper for verification if approved.</p>";
 
         $mail->send();
@@ -55,15 +56,20 @@ if (isset($_POST["pass_id"]) && isset($_POST["status"])) {
         $stmt_update->bind_param("si", $status, $pass_id);
         $stmt_update->execute();
         $stmt_update->close();
-        echo "Notification sent successfully.";
+        // Redirect to dashboard with success message
+        header("Location: hod_dashboard.php?success=Notification sent successfully.");
+        exit();
     } catch (Exception $e) {
         $stmt_update = $conn->prepare("UPDATE passes SET notification_status = 'failed' WHERE id = ?");
         $stmt_update->bind_param("i", $pass_id);
         $stmt_update->execute();
         $stmt_update->close();
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        header("Location: hod_dashboard.php?error=Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        exit();
     }
 }
 
 $conn->close();
+header("Location: hod_dashboard.php?error=Invalid request.");
+exit();
 ?>

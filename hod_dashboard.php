@@ -5,17 +5,16 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] != "hod") {
     exit();
 }
 
-// Database connection
 $conn = new mysqli("127.0.0.1:3307", "root", "Saikumar@123", "gate_pass_system");
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Fetch pending passes
-$stmt = $conn->prepare("SELECT p.id, s.name, s.branch, p.exit_time, p.attendance_percentage, p.parent_phone, p.status FROM passes p JOIN students s ON p.student_id = s.id WHERE p.status = 'pending'");
+$stmt = $conn->prepare("SELECT p.id, s.name, s.branch, p.exit_time, p.attendance_percentage, p.parent_phone, p.reason, p.status FROM passes p JOIN students s ON p.student_id = s.id WHERE p.status = 'pending'");
 $stmt->execute();
 $result = $stmt->get_result();
+
+// Handle success/error message from redirect
+$success = isset($_GET['success']) ? htmlspecialchars($_GET['success']) : '';
+$error = isset($_GET['error']) ? htmlspecialchars($_GET['error']) : '';
 ?>
 
 <!DOCTYPE html>
@@ -33,6 +32,11 @@ $result = $stmt->get_result();
     </div>
     <div class="container">
         <h1>Welcome, <?php echo htmlspecialchars($_SESSION["user_name"]); ?></h1>
+        <?php if ($success): ?>
+            <p style="color: green;"><?php echo $success; ?></p>
+        <?php elseif ($error): ?>
+            <p style="color: red;"><?php echo $error; ?></p>
+        <?php endif; ?>
         <h2>Pending Gate Pass Requests</h2>
         <?php if ($result->num_rows > 0) { ?>
             <table>
@@ -43,6 +47,7 @@ $result = $stmt->get_result();
                     <th>Exit Time</th>
                     <th>Attendance %</th>
                     <th>Parent Phone</th>
+                    <th>Reason</th>
                     <th>Actions</th>
                 </tr>
                 <?php while ($row = $result->fetch_assoc()) { ?>
@@ -53,6 +58,7 @@ $result = $stmt->get_result();
                         <td><?php echo htmlspecialchars($row["exit_time"] ?? 'N/A'); ?></td>
                         <td><?php echo htmlspecialchars($row["attendance_percentage"] ?? 'N/A'); ?></td>
                         <td><?php echo htmlspecialchars($row["parent_phone"] ?? 'N/A'); ?></td>
+                        <td><?php echo htmlspecialchars($row["reason"] ?? 'N/A'); ?></td>
                         <td>
                             <form action="notify_status.php" method="POST" style="display:inline;">
                                 <input type="hidden" name="pass_id" value="<?php echo htmlspecialchars($row["id"]); ?>">

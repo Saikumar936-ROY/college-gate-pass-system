@@ -37,6 +37,8 @@ $student = $result->fetch_assoc();
             <input type="number" id="attendance" name="attendance" min="0" max="100" step="0.1" placeholder="Enter Attendance %" required>
             <label for="parent_phone">Parent's Phone:</label>
             <input type="tel" id="parent_phone" name="parent_phone" placeholder="Enter Parent's Phone" required>
+            <label for="reason">Reason for Leaving:</label>
+            <input type="text" id="reason" name="reason" placeholder="Enter reason for leaving" required>
             <label for="exit_time">Exit Time:</label>
             <input type="datetime-local" id="exit_time" name="exit_time" required>
             <button type="submit" class="btn">Submit Request</button>
@@ -51,4 +53,7 @@ $student = $result->fetch_assoc();
     </script>
 </body>
 </html>
-<?php $stmt->close(); $conn->close(); ?>
+<?php
+$stmt->close();
+$conn->close();
+?>
