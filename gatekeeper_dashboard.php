@@ -5,7 +5,7 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] != "gatekeeper") {
     exit();
 }
 
-$conn = new mysqli("127.0.0.1:3307", "root", "Saikumar@123", "gate_pass_system");
+$conn = new mysqli("localhost", "root", "Saikumar@123", "gate_pass_system");
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
 $stmt = $conn->prepare("SELECT p.id, s.name, s.branch, p.exit_time, p.attendance_percentage, p.parent_phone, p.reason, p.status, p.verification_status, p.gatekeeper_decision FROM passes p JOIN students s ON p.student_id = s.id WHERE p.status = 'approved' AND (p.verification_status IS NULL OR p.verification_status != 'verified' OR p.gatekeeper_decision = 'pending')");

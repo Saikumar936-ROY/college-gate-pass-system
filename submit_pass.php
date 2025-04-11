@@ -5,7 +5,7 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] != "student") {
     exit();
 }
 
-$conn = new mysqli("127.0.0.1:3307", "root", "Saikumar@123", "gate_pass_system");
+$conn = new mysqli("localhost", "root", "Saikumar@123", "gate_pass_system");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -13,13 +13,16 @@ if ($conn->connect_error) {
 
 $student_id = $_SESSION["user_id"];
 $exit_time = $_POST["exit_time"];
-$attendance = $_POST["attendance"];
+$attendance = floatval($_POST["attendance"]);
 $parent_phone = $_POST["parent_phone"];
 $reason = $_POST["reason"];
 
+error_log("Received attendance: " . $attendance); // Debug log
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($exit_time) && !empty($attendance) && !empty($parent_phone) && !empty($reason)) {
-    if ($attendance < 0 || $attendance > 100) {
-        die("Attendance must be between 0 and 100.");
+    if ($attendance < 0 || $attendance > 100 || strlen((string)$attendance) > 3) {
+        error_log("Validation failed: Attendance ($attendance) out of range 0-100 or exceeds 3 digits");
+        die("Attendance must be between 0 and 100 (max 3 digits). Please go back and try again.");
     }
 
     $stmt = $conn->prepare("INSERT INTO passes (student_id, exit_time, attendance_percentage, parent_phone, reason, notification_status) VALUES (?, ?, ?, ?, ?, 'pending')");
@@ -42,8 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($exit_time) && !empty($attend
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'your.email@gmail.com'; // Replace with your Gmail
-            $mail->Password = 'your_app_password';     // Replace with your App Password
+            $mail->Username = 'your.email@gmail.com';
+            $mail->Password = 'your_app_password';
             $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
@@ -67,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($exit_time) && !empty($attend
             $stmt_update = $conn->prepare("UPDATE passes SET notification_status = 'failed' WHERE id = LAST_INSERT_ID()");
             $stmt_update->execute();
             $stmt_update->close();
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
         }
 
         header("Location: student_dashboard.php");
