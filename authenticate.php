@@ -1,14 +1,14 @@
 <?php
 session_start();
 $conn = new mysqli("localhost", "root", "Saikumar@123", "gate_pass_system");
+
 if ($conn->connect_error) {
-    error_log("Connection failed: " . $conn->connect_error . " (Error No: " . $conn->connect_errno . ")");
     die("Connection failed: " . $conn->connect_error);
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
-    $password = trim($_POST["password"]);
+    $password = trim($_POST["password"]); // Ensure no hidden chars
     $role = $_POST["role"];
 
     $table = ($role == "student") ? "students" : (($role == "hod") ? "hod" : "gatekeepers");
