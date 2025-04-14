@@ -12,5 +12,7 @@
 
 ## Team Roles
 - Person 1 & 2: Completed (Login, Dashboard, Pass Request, Notifications).
+
 - Person 3: Implement HOD Approval (integrate with `notify_status.php`).
 - Person 4: Implement Gatekeeper Verification.
+person 2: backend
