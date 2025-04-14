@@ -26,8 +26,8 @@ if (isset($_POST["pass_id"])) {
         $student_email = $pass['email'];
         $exit_time = $pass['exit_time'];
 
-        // Update verification status
-        $stmt_update = $conn->prepare("UPDATE passes SET verification_status = 'verified' WHERE id = ?");
+        // Update verification status and gatekeeper decision
+        $stmt_update = $conn->prepare("UPDATE passes SET verification_status = 'verified', gatekeeper_decision = 'allowed' WHERE id = ?");
         $stmt_update->bind_param("i", $pass_id);
         $stmt_update->execute();
         $stmt_update->close();
@@ -50,10 +50,10 @@ if (isset($_POST["pass_id"])) {
             $mail->setFrom('your.email@gmail.com', 'College Gate Pass');
             $mail->addAddress($student_email);
             $mail->isHTML(true);
-            $mail->Subject = 'Gate Pass Verified';
+            $mail->Subject = 'Gate Pass Verified and Allowed';
             $mail->Body = "<h2>Gate Pass Verification</h2>
                            <p>Dear " . htmlspecialchars($pass['student_id']) . ",</p>
-                           <p>Your gate pass for exit at " . htmlspecialchars($exit_time) . " has been verified.</p>
+                           <p>Your gate pass for exit at " . htmlspecialchars($exit_time) . " has been verified and allowed by the gatekeeper.</p>
                            <p>Safe travels!</p>";
 
             $mail->send();

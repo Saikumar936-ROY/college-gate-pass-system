@@ -8,7 +8,7 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] != "gatekeeper") {
 $conn = new mysqli("localhost", "root", "Saikumar@123", "gate_pass_system");
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
-$stmt = $conn->prepare("SELECT p.id, s.name, s.branch, p.exit_time, p.attendance_percentage, p.parent_phone, p.reason, p.status, p.verification_status, p.gatekeeper_decision FROM passes p JOIN students s ON p.student_id = s.id WHERE p.status = 'approved' AND (p.verification_status IS NULL OR p.verification_status != 'verified' OR p.gatekeeper_decision = 'pending')");
+$stmt = $conn->prepare("SELECT p.id, s.name, s.branch, p.exit_time, p.attendance_percentage, p.parent_phone, p.reason, p.status, p.verification_status, p.gatekeeper_decision FROM passes p JOIN students s ON p.student_id = s.id WHERE p.status = 'approved' AND (p.verification_status IS NULL OR p.verification_status != 'verified')");
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
@@ -51,35 +51,26 @@ $result = $stmt->get_result();
                         <td><?php echo htmlspecialchars($row["parent_phone"] ?? 'N/A'); ?></td>
                         <td><?php echo htmlspecialchars($row["reason"] ?? 'N/A'); ?></td>
                         <td>
-                            <?php if ($row["verification_status"] != 'verified' || $row["gatekeeper_decision"] == 'pending') { ?>
+                            <?php if ($row["verification_status"] != 'verified') { ?>
                                 <form action="verify_pass.php" method="POST" style="display:inline;">
                                     <input type="hidden" name="pass_id" value="<?php echo htmlspecialchars($row["id"]); ?>">
-                                    <button type="submit" class="btn btn-secondary" style="margin-right: 10px;">Verify</button>
+                                    <button type="submit" class="btn btn-secondary">Verify & Allow</button>
                                 </form>
-                            <?php } ?>
-                            <?php if ($row["verification_status"] == 'verified' && $row["gatekeeper_decision"] == 'pending') { ?>
-                                <form action="decide_pass.php" method="POST" style="display:inline;">
-                                    <input type="hidden" name="pass_id" value="<?php echo htmlspecialchars($row["id"]); ?>">
-                                    <button type="submit" name="decision" value="allowed" class="btn btn-secondary" style="margin-right: 10px;">Allow</button>
-                                    <button type="submit" name="decision" value="not_allowed" class="btn btn-danger">Not Allow</button>
-                                </form>
-                            <?php } elseif ($row["gatekeeper_decision"] == 'allowed') { ?>
+                            <?php } else { ?>
                                 <span class="btn btn-secondary" style="opacity: 0.7;">Allowed</span>
-                            <?php } elseif ($row["gatekeeper_decision"] == 'not_allowed') { ?>
-                                <span class="btn btn-danger" style="opacity: 0.7;">Not Allowed</span>
                             <?php } ?>
                         </td>
                     </tr>
                 <?php } ?>
             </table>
         <?php } else { ?>
-            <p>No approved passes to verify or decide.</p>
+            <p>No approved passes to verify.</p>
         <?php } ?>
         <h3>Manual Verification</h3>
         <form action="verify_pass.php" method="POST">
             <label for="pass_id">Enter Pass ID:</label>
             <input type="number" id="pass_id" name="pass_id" required placeholder="Enter Pass ID">
-            <button type="submit" class="btn">Verify Manually</button>
+            <button type="submit" class="btn">Verify & Allow</button>
         </form>
     </div>
 </body>
