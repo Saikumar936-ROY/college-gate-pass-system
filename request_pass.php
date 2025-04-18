@@ -7,7 +7,7 @@ if (!isset($_SESSION["user_id"]) || $_SESSION["role"] != "student") {
 $conn = new mysqli("localhost", "root", "Saikumar@123", "gate_pass_system");
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 $student_id = $_SESSION["user_id"];
-$stmt = $conn->prepare("SELECT name, branch FROM students WHERE id = ?");
+$stmt = $conn->prepare("SELECT name, branch, parent_phone FROM students WHERE id = ?");
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -41,12 +41,14 @@ $student = $result->fetch_assoc();
             <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($student['name']); ?>" readonly>
             <label for="branch">Branch:</label>
             <input type="text" id="branch" name="branch" value="<?php echo htmlspecialchars($student['branch']); ?>" readonly>
+            <label for="parent_phone">Parent's Phone:</label>
+            <input type="text" id="parent_phone" name="parent_phone" value="<?php echo htmlspecialchars($student['parent_phone']); ?>" readonly>
             <label for="attendance">Attendance %:</label>
             <input type="number" id="attendance" name="attendance" min="0" max="100" step="0.1" placeholder="Enter Attendance %" required>
             <span id="attendance-error" class="error"></span>
-            <label for="parent_phone">Parent's Phone:</label>
-            <input type="tel" id="parent_phone" name="parent_phone" pattern="[6-9][0-9]{9}" placeholder="Enter 10-digit Phone Number" required>
-            <span id="phone-error" class="error"></span>
+            <label for="is_emergency">Emergency Request:</label>
+            <input type="checkbox" id="is_emergency" name="is_emergency" value="1">
+            <span style="font-size: 0.9em; color: #555;">Check if this is an emergency (allows submission below 75% attendance)</span>
             <label for="reason">Reason for Leaving:</label>
             <input type="text" id="reason" name="reason" placeholder="Enter reason for leaving" required>
             <label for="exit_time">Exit Time:</label>
@@ -61,22 +63,16 @@ $student = $result->fetch_assoc();
             let isValid = true;
             // Attendance validation
             const attendance = document.getElementById('attendance').value;
+            const isEmergency = document.getElementById('is_emergency').checked;
             const attendanceError = document.getElementById('attendance-error');
             if (attendance < 0 || attendance > 100 || isNaN(attendance)) {
                 attendanceError.textContent = 'Attendance must be between 0 and 100%';
                 isValid = false;
-            } else {
-                attendanceError.textContent = '';
-            }
-            // Phone number validation
-            const phone = document.getElementById('parent_phone').value;
-            const phoneError = document.getElementById('phone-error');
-            const phoneRegex = /^[6-9][0-9]{9}$/;
-            if (!phoneRegex.test(phone)) {
-                phoneError.textContent = 'Enter a valid 10-digit Indian phone number';
+            } else if (attendance < 75 && !isEmergency) {
+                attendanceError.textContent = 'Attendance below 75% requires an emergency request';
                 isValid = false;
             } else {
-                phoneError.textContent = '';
+                attendanceError.textContent = '';
             }
             // Show loading only if valid
             if (isValid) {

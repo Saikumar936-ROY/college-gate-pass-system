@@ -13,17 +13,34 @@ if ($conn->connect_error) {
 
 $student_id = $_SESSION["user_id"];
 $exit_time = $_POST["exit_time"];
-$attendance = $_POST["attendance"];
+$attendance = floatval($_POST["attendance"]);
 $parent_phone = $_POST["parent_phone"];
 $reason = $_POST["reason"];
+$is_emergency = isset($_POST["is_emergency"]) && $_POST["is_emergency"] == "1" ? 1 : 0;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($exit_time) && !empty($attendance) && !empty($parent_phone) && !empty($reason)) {
+    // Validate attendance
     if ($attendance < 0 || $attendance > 100) {
         die("Attendance must be between 0 and 100.");
     }
+    if ($attendance < 75 && !$is_emergency) {
+        die("Attendance below 75% requires an emergency request.");
+    }
 
-    $stmt = $conn->prepare("INSERT INTO passes (student_id, exit_time, attendance_percentage, parent_phone, reason, notification_status) VALUES (?, ?, ?, ?, ?, 'pending')");
-    $stmt->bind_param("issds", $student_id, $exit_time, $attendance, $parent_phone, $reason);
+    // Validate parent_phone against students table
+    $stmt_check = $conn->prepare("SELECT parent_phone FROM students WHERE id = ?");
+    $stmt_check->bind_param("i", $student_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    $student = $result_check->fetch_assoc();
+    if ($parent_phone !== $student['parent_phone']) {
+        die("Error: Parent phone mismatch.");
+    }
+    $stmt_check->close();
+
+    // Insert pass request
+    $stmt = $conn->prepare("INSERT INTO passes (student_id, exit_time, attendance_percentage, parent_phone, reason, is_emergency, notification_status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
+    $stmt->bind_param("issdsi", $student_id, $exit_time, $attendance, $parent_phone, $reason, $is_emergency);
 
     if ($stmt->execute()) {
         $stmt_email = $conn->prepare("SELECT email FROM students WHERE id = ?");
@@ -32,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($exit_time) && !empty($attend
         $result_email = $stmt_email->get_result();
         $student = $result_email->fetch_assoc();
         $student_email = $student['email'];
+        $stmt_email->close();
 
         require_once 'PHPMailer/PHPMailer.php';
         require_once 'PHPMailer/SMTP.php';
@@ -56,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($exit_time) && !empty($attend
                            <p>Your gate pass request has been submitted successfully.</p>
                            <p><strong>Exit Time:</strong> " . htmlspecialchars($exit_time) . "</p>
                            <p><strong>Reason:</strong> " . htmlspecialchars($reason) . "</p>
+                           <p><strong>Emergency:</strong> " . ($is_emergency ? 'Yes' : 'No') . "</p>
                            <p><strong>Status:</strong> Pending</p>
                            <p>You will be notified once it is approved or rejected.</p>";
 
